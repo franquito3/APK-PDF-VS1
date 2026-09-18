@@ -210,93 +210,32 @@ fun DocsNavGraph(
         navController = navController,
         startDestination = startDestination,
         enterTransition = {
-            val isMainTabSwitch = initialState.destination.route in MAIN_TAB_ROUTES && targetState.destination.route in MAIN_TAB_ROUTES
-            if (isMainTabSwitch) {
-                val dist = kotlin.math.abs(routeToTabIdx(targetState.destination.route) - routeToTabIdx(initialState.destination.route))
-                val fadeDuration = if (dist >= 2) 520 else 350
-                androidx.compose.animation.fadeIn(
-                    animationSpec = tween(durationMillis = fadeDuration, easing = androidx.compose.animation.core.FastOutSlowInEasing)
-                )
-            } else {
-                androidx.compose.animation.fadeIn(
-                    animationSpec = tween(durationMillis = 280, easing = EaseInOut)
-                ) + androidx.compose.animation.slideInHorizontally(
-                    animationSpec = androidx.compose.animation.core.spring(
-                        dampingRatio = androidx.compose.animation.core.Spring.DampingRatioNoBouncy,
-                        stiffness = androidx.compose.animation.core.Spring.StiffnessMediumLow
-                    ),
-                    initialOffsetX = { (it * 0.22f).toInt() }
-                )
-            }
+            androidx.compose.animation.fadeIn(
+                animationSpec = tween(durationMillis = 180, easing = EaseInOut)
+            )
         },
         exitTransition = {
-            val isMainTabSwitch = initialState.destination.route in MAIN_TAB_ROUTES && targetState.destination.route in MAIN_TAB_ROUTES
             if (isDocViewerRoute(targetState.destination.route) && !isDocViewerRoute(initialState.destination.route)) {
-                // Opening a document viewer: hold this screen still + opaque behind the lifting
-                // viewer so its scaling edges never flash the bare window. See [isDocViewerRoute].
                 ExitTransition.None
-            } else if (isMainTabSwitch) {
-                val dist = kotlin.math.abs(routeToTabIdx(targetState.destination.route) - routeToTabIdx(initialState.destination.route))
-                val fadeDuration = if (dist >= 2) 520 else 350
-                androidx.compose.animation.fadeOut(
-                    animationSpec = tween(durationMillis = fadeDuration, easing = androidx.compose.animation.core.FastOutSlowInEasing)
-                )
             } else {
                 androidx.compose.animation.fadeOut(
-                    animationSpec = tween(durationMillis = 180, easing = EaseInOut)
-                ) + androidx.compose.animation.slideOutHorizontally(
-                    animationSpec = androidx.compose.animation.core.spring(
-                        dampingRatio = androidx.compose.animation.core.Spring.DampingRatioNoBouncy,
-                        stiffness = androidx.compose.animation.core.Spring.StiffnessMediumLow
-                    ),
-                    targetOffsetX = { (-it * 0.10f).toInt() }
+                    animationSpec = tween(durationMillis = 140, easing = EaseInOut)
                 )
             }
         },
         popEnterTransition = {
-            val isMainTabSwitch = initialState.destination.route in MAIN_TAB_ROUTES && targetState.destination.route in MAIN_TAB_ROUTES
             if (isDocViewerRoute(initialState.destination.route) && !isDocViewerRoute(targetState.destination.route)) {
-                // Returning from a document viewer: this screen is already there — don't re-animate
-                // it. Just let the viewer scale/fade away on top of it. Re-fading it in was the
-                // "flash + black edge" flicker on back. See [isDocViewerRoute].
                 EnterTransition.None
-            } else if (isMainTabSwitch) {
-                val dist = kotlin.math.abs(routeToTabIdx(targetState.destination.route) - routeToTabIdx(initialState.destination.route))
-                val fadeDuration = if (dist >= 2) 520 else 350
-                androidx.compose.animation.fadeIn(
-                    animationSpec = tween(durationMillis = fadeDuration, easing = androidx.compose.animation.core.FastOutSlowInEasing)
-                )
             } else {
                 androidx.compose.animation.fadeIn(
-                    animationSpec = tween(durationMillis = 280, easing = EaseInOut)
-                ) + androidx.compose.animation.slideInHorizontally(
-                    animationSpec = androidx.compose.animation.core.spring(
-                        dampingRatio = androidx.compose.animation.core.Spring.DampingRatioNoBouncy,
-                        stiffness = androidx.compose.animation.core.Spring.StiffnessMediumLow
-                    ),
-                    initialOffsetX = { (-it * 0.10f).toInt() }
+                    animationSpec = tween(durationMillis = 180, easing = EaseInOut)
                 )
             }
         },
         popExitTransition = {
-            val isMainTabSwitch = initialState.destination.route in MAIN_TAB_ROUTES && targetState.destination.route in MAIN_TAB_ROUTES
-            if (isMainTabSwitch) {
-                val dist = kotlin.math.abs(routeToTabIdx(targetState.destination.route) - routeToTabIdx(initialState.destination.route))
-                val fadeDuration = if (dist >= 2) 520 else 350
-                androidx.compose.animation.fadeOut(
-                    animationSpec = tween(durationMillis = fadeDuration, easing = androidx.compose.animation.core.FastOutSlowInEasing)
-                )
-            } else {
-                androidx.compose.animation.fadeOut(
-                    animationSpec = tween(durationMillis = 180, easing = EaseInOut)
-                ) + androidx.compose.animation.slideOutHorizontally(
-                    animationSpec = androidx.compose.animation.core.spring(
-                        dampingRatio = androidx.compose.animation.core.Spring.DampingRatioNoBouncy,
-                        stiffness = androidx.compose.animation.core.Spring.StiffnessMediumLow
-                    ),
-                    targetOffsetX = { (it * 0.22f).toInt() }
-                )
-            }
+            androidx.compose.animation.fadeOut(
+                animationSpec = tween(durationMillis = 140, easing = EaseInOut)
+            )
         }
     ) {
 

@@ -55,8 +55,8 @@ fun Modifier.viewerGlass(
     shape = shape,
     effects = {
         vibrancy()
-        blur(2f.dp.toPx())
-        lens(12f.dp.toPx(), 24f.dp.toPx())
+        blur(0.2f.dp.toPx())
+        lens(0f, 0f)
     },
     shadow = if (withShadow) ({ com.kyant.backdrop.shadow.Shadow.Default }) else null,
     onDrawSurface = { drawRect(color) }

@@ -33,18 +33,15 @@ fun Modifier.liquidGlassPanel(
     val isDarkMode = LocalIsDarkMode.current
     val isLightTheme = !isDarkMode
     val containerColor = containerColorOverride
-        ?: if (isLightTheme) Color(0xFFFAFAFA).copy(0.4f) else Color(0xFF1E1E1E).copy(0.4f)
+        ?: if (isLightTheme) Color(0xFFFAFAFA).copy(0.72f) else Color(0xFF1E1E1E).copy(0.72f)
     return this.drawBackdrop(
         backdrop = backdrop,
         shape = { RoundedRectangle(28f.dp) },
         effects = {
             vibrancy()
-            blur(8f.dp.toPx())
-            lens(20f.dp.toPx(), 40f.dp.toPx(), depthEffect = true)
+            blur(0.2f.dp.toPx())
+            lens(0f, 0f, depthEffect = false)
         },
-        highlight = { Highlight(style = HighlightStyle.Default(angle = uiSensor.gravityAngle, falloff = 2f)) },
-        shadow = { Shadow(radius = 8f.dp, color = Color.Black.copy(alpha = 0.1f)) },
-        innerShadow = { InnerShadow(radius = 3f.dp, alpha = 0.3f) },
         onDrawSurface = { drawRect(containerColor) }
     )
 }

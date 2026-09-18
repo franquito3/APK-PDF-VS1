@@ -85,31 +85,12 @@ fun LiquidGlassCard(
                 shape = { RoundedRectangle(28f.dp) },
                 effects = {
                     vibrancy()
-                    blur(7f.dp.toPx())
-                    lens(20f.dp.toPx(), 38f.dp.toPx(), depthEffect = true)
-                },
-                highlight = {
-                    Highlight(style = HighlightStyle.Default(angle = uiSensor.gravityAngle, falloff = 2f))
-                },
-                shadow = { Shadow(radius = 8f.dp, color = Color.Black.copy(alpha = 0.12f)) },
-                innerShadow = { InnerShadow(radius = 3.5f.dp, alpha = 0.35f) },
-                layerBlock = {
-                    val progress = interactiveHighlight.pressProgress
-                    val scale = lerp(1f, 1f + 4f.dp.toPx() / size.height, progress)
-                    val maxOffset = size.minDimension
-                    val offset = interactiveHighlight.offset
-                    translationX = maxOffset * tanh(0.04f * offset.x / maxOffset)
-                    translationY = maxOffset * tanh(0.04f * offset.y / maxOffset)
-                    val maxDragScale = 3f.dp.toPx() / size.height
-                    val offsetAngle = atan2(offset.y, offset.x)
-                    scaleX = scale + maxDragScale * abs(cos(offsetAngle) * offset.x / size.maxDimension)
-                    scaleY = scale + maxDragScale * abs(sin(offsetAngle) * offset.y / size.maxDimension)
+                    blur(0.2f.dp.toPx())
+                    lens(0f, 0f, depthEffect = false)
                 },
                 onDrawSurface = { drawRect(container) }
             )
             .clickable(interactionSource = null, indication = null, role = Role.Button, onClick = onClick)
-            .then(interactiveHighlight.modifier)
-            .then(interactiveHighlight.gestureModifier)
             .padding(18.dp),
         verticalArrangement = Arrangement.SpaceBetween
     ) {

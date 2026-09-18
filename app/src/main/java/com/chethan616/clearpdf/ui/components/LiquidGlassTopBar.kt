@@ -50,14 +50,9 @@ fun LiquidGlassTopBar(
                 shape = { Capsule },
                 effects = {
                     vibrancy()
-                    blur(8f.dp.toPx())
-                    lens(16f.dp.toPx(), 32f.dp.toPx())
+                    blur(0.2f.dp.toPx())
+                    lens(0f, 0f, depthEffect = false)
                 },
-                highlight = {
-                    Highlight(style = HighlightStyle.Default(angle = uiSensor.gravityAngle, falloff = 2f))
-                },
-                shadow = { Shadow(radius = 6f.dp, color = Color.Black.copy(alpha = 0.08f)) },
-                innerShadow = { InnerShadow(radius = 2f.dp, alpha = 0.25f) },
                 onDrawSurface = { drawRect(containerColor) }
             )
             .fillMaxWidth()

@@ -181,13 +181,10 @@ fun DocsApp(shortcutRoute: String? = null, incomingPdfUri: android.net.Uri? = nu
     Box(
         Modifier
             .fillMaxSize()
-            // Root-level only. The transform composites the finished frame, so the glass inside is
-            // never re-sampled — it does not violate the "don't move glass" rule.
+            // Keep the transition cheap: a simple fade is much lighter than scaling the entire root
+            // tree while the glass backdrop is still being rendered underneath.
             .graphicsLayer {
                 alpha = exitProgress * enterProgress
-                val s = lerp(0.98f, 1f, exitProgress) * lerp(1.02f, 1f, enterProgress)
-                scaleX = s
-                scaleY = s
             },
         contentAlignment = Alignment.TopCenter
     ) {
