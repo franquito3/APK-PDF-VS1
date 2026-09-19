@@ -52,12 +52,7 @@ fun DecryptingAnimation(
     var target by remember { mutableFloatStateOf(0f) }
     LaunchedEffect(Unit) {
         delay(220)
-        while (true) {
-            target = 1f
-            delay(1500)          // scan down + dwell on the decrypted page
-            target = 0f
-            delay(520)           // re-lock gap
-        }
+        target = 1f
     }
     val p by animateFloatAsState(target, tween(1050, easing = FastOutSlowInEasing), label = "decryptScan")
 

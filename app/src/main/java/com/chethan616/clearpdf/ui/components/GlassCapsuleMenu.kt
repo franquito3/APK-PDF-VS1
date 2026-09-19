@@ -84,16 +84,8 @@ fun GlassCapsuleMenu(
     Row(
         modifier
             .graphicsLayer { alpha = progress.coerceIn(0f, 1f) }
-            .drawBackdrop(
-                backdrop = backdrop,
-                shape = { Capsule },
-                effects = {
-                    vibrancy()
-                    blur(0.2f.dp.toPx())
-                    lens(0f, 0f, depthEffect = false)
-                },
-                onDrawSurface = { drawRect(container) }
-            )
+            .background(container, Capsule)
+            .border(1.dp, Color.White.copy(alpha = 0.12f), Capsule)
             .padding(horizontal = 8.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)

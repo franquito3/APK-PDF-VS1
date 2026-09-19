@@ -159,82 +159,16 @@ fun SettingsScreen(
 
     val density = androidx.compose.ui.platform.LocalDensity.current.density
 
-    val topBarAlpha by androidx.compose.animation.core.animateFloatAsState(
+    // One lightweight entrance animation is enough for this screen. The previous six staggered
+    // animations were all firing at once and creating unnecessary work on mid-range devices.
+    val settingsEntrance by androidx.compose.animation.core.animateFloatAsState(
         targetValue = if (isVisible) 1f else 0f,
-        animationSpec = androidx.compose.animation.core.tween(durationMillis = 550, easing = androidx.compose.animation.core.FastOutSlowInEasing),
-        label = "settingsTopBarAlpha"
-    )
-    val topBarOffsetY by androidx.compose.animation.core.animateFloatAsState(
-        targetValue = if (isVisible) 0f else 18f,
-        animationSpec = androidx.compose.animation.core.tween(durationMillis = 550, easing = androidx.compose.animation.core.FastOutSlowInEasing),
-        label = "settingsTopBarOffsetY"
+        animationSpec = androidx.compose.animation.core.tween(durationMillis = 220, easing = androidx.compose.animation.core.FastOutSlowInEasing),
+        label = "settingsEntrance"
     )
 
-    val panel1Alpha by androidx.compose.animation.core.animateFloatAsState(
-        targetValue = if (isVisible) 1f else 0f,
-        animationSpec = androidx.compose.animation.core.tween(durationMillis = 420, delayMillis = 30, easing = androidx.compose.animation.core.FastOutSlowInEasing),
-        label = "settingsPanel1Alpha"
-    )
-    val panel1OffsetY by androidx.compose.animation.core.animateFloatAsState(
-        targetValue = if (isVisible) 0f else 14f,
-        animationSpec = androidx.compose.animation.core.tween(durationMillis = 420, delayMillis = 30, easing = androidx.compose.animation.core.FastOutSlowInEasing),
-        label = "settingsPanel1OffsetY"
-    )
-
-    val panel2Alpha by androidx.compose.animation.core.animateFloatAsState(
-        targetValue = if (isVisible) 1f else 0f,
-        animationSpec = androidx.compose.animation.core.tween(durationMillis = 440, delayMillis = 90, easing = androidx.compose.animation.core.FastOutSlowInEasing),
-        label = "settingsPanel2Alpha"
-    )
-    val panel2OffsetY by androidx.compose.animation.core.animateFloatAsState(
-        targetValue = if (isVisible) 0f else 16f,
-        animationSpec = androidx.compose.animation.core.tween(durationMillis = 440, delayMillis = 90, easing = androidx.compose.animation.core.FastOutSlowInEasing),
-        label = "settingsPanel2OffsetY"
-    )
-
-    val panel3Alpha by androidx.compose.animation.core.animateFloatAsState(
-        targetValue = if (isVisible) 1f else 0f,
-        animationSpec = androidx.compose.animation.core.tween(durationMillis = 460, delayMillis = 150, easing = androidx.compose.animation.core.FastOutSlowInEasing),
-        label = "settingsPanel3Alpha"
-    )
-    val panel3OffsetY by androidx.compose.animation.core.animateFloatAsState(
-        targetValue = if (isVisible) 0f else 18f,
-        animationSpec = androidx.compose.animation.core.tween(durationMillis = 460, delayMillis = 150, easing = androidx.compose.animation.core.FastOutSlowInEasing),
-        label = "settingsPanel3OffsetY"
-    )
-
-    val panel4Alpha by androidx.compose.animation.core.animateFloatAsState(
-        targetValue = if (isVisible) 1f else 0f,
-        animationSpec = androidx.compose.animation.core.tween(durationMillis = 480, delayMillis = 210, easing = androidx.compose.animation.core.FastOutSlowInEasing),
-        label = "settingsPanel4Alpha"
-    )
-    val panel4OffsetY by androidx.compose.animation.core.animateFloatAsState(
-        targetValue = if (isVisible) 0f else 20f,
-        animationSpec = androidx.compose.animation.core.tween(durationMillis = 480, delayMillis = 210, easing = androidx.compose.animation.core.FastOutSlowInEasing),
-        label = "settingsPanel4OffsetY"
-    )
-
-    val panel5Alpha by androidx.compose.animation.core.animateFloatAsState(
-        targetValue = if (isVisible) 1f else 0f,
-        animationSpec = androidx.compose.animation.core.tween(durationMillis = 500, delayMillis = 270, easing = androidx.compose.animation.core.FastOutSlowInEasing),
-        label = "settingsPanel5Alpha"
-    )
-    val panel5OffsetY by androidx.compose.animation.core.animateFloatAsState(
-        targetValue = if (isVisible) 0f else 22f,
-        animationSpec = androidx.compose.animation.core.tween(durationMillis = 500, delayMillis = 270, easing = androidx.compose.animation.core.FastOutSlowInEasing),
-        label = "settingsPanel5OffsetY"
-    )
-
-    val panel6Alpha by androidx.compose.animation.core.animateFloatAsState(
-        targetValue = if (isVisible) 1f else 0f,
-        animationSpec = androidx.compose.animation.core.tween(durationMillis = 520, delayMillis = 330, easing = androidx.compose.animation.core.FastOutSlowInEasing),
-        label = "settingsPanel6Alpha"
-    )
-    val panel6OffsetY by androidx.compose.animation.core.animateFloatAsState(
-        targetValue = if (isVisible) 0f else 24f,
-        animationSpec = androidx.compose.animation.core.tween(durationMillis = 520, delayMillis = 330, easing = androidx.compose.animation.core.FastOutSlowInEasing),
-        label = "settingsPanel6OffsetY"
-    )
+    val topBarAlpha = settingsEntrance
+    val topBarOffsetY = (1f - settingsEntrance) * 8f
 
     GlassScreenScaffold(
         backdrop = backdrop,
@@ -261,8 +195,8 @@ fun SettingsScreen(
             Modifier
                 .fillMaxWidth()
                 .graphicsLayer {
-                    alpha = panel1Alpha
-                    translationY = panel1OffsetY * density
+                    alpha = settingsEntrance
+                    translationY = (1f - settingsEntrance) * 10f * density
                 }
                 .liquidGlassSection(isLight)
                 .padding(20.dp),
@@ -326,8 +260,8 @@ fun SettingsScreen(
             Modifier
                 .fillMaxWidth()
                 .graphicsLayer {
-                    alpha = panel1Alpha
-                    translationY = panel1OffsetY * density
+                    alpha = settingsEntrance
+                    translationY = (1f - settingsEntrance) * 10f * density
                 }
                 .liquidGlassSection(isLight)
                 .padding(20.dp),
@@ -375,8 +309,8 @@ fun SettingsScreen(
             Modifier
                 .fillMaxWidth()
                 .graphicsLayer {
-                    alpha = panel2Alpha
-                    translationY = panel2OffsetY * density
+                    alpha = settingsEntrance
+                    translationY = (1f - settingsEntrance) * 10f * density
                 }
                 .liquidGlassSection(isLight)
                 .padding(20.dp),
@@ -453,8 +387,8 @@ fun SettingsScreen(
             Modifier
                 .fillMaxWidth()
                 .graphicsLayer {
-                    alpha = panel3Alpha
-                    translationY = panel3OffsetY * density
+                    alpha = settingsEntrance
+                    translationY = (1f - settingsEntrance) * 10f * density
                 }
                 .liquidGlassSection(isLight)
                 .padding(20.dp),
@@ -504,8 +438,8 @@ fun SettingsScreen(
             Modifier
                 .fillMaxWidth()
                 .graphicsLayer {
-                    alpha = panel4Alpha
-                    translationY = panel4OffsetY * density
+                    alpha = settingsEntrance
+                    translationY = (1f - settingsEntrance) * 10f * density
                 }
                 .liquidGlassSection(isLight)
                 .padding(20.dp),
@@ -561,8 +495,8 @@ fun SettingsScreen(
             Modifier
                 .fillMaxWidth()
                 .graphicsLayer {
-                    alpha = panel4Alpha
-                    translationY = panel4OffsetY * density
+                    alpha = settingsEntrance
+                    translationY = (1f - settingsEntrance) * 10f * density
                 }
                 .liquidGlassSection(isLight)
                 .padding(20.dp),
@@ -657,8 +591,8 @@ fun SettingsScreen(
             Modifier
                 .fillMaxWidth()
                 .graphicsLayer {
-                    alpha = panel5Alpha
-                    translationY = panel5OffsetY * density
+                    alpha = settingsEntrance
+                    translationY = (1f - settingsEntrance) * 10f * density
                 }
                 .liquidGlassSection(isLight)
                 .padding(24.dp),
@@ -708,8 +642,8 @@ fun SettingsScreen(
             Modifier
                 .fillMaxWidth()
                 .graphicsLayer {
-                    alpha = panel6Alpha
-                    translationY = panel6OffsetY * density
+                    alpha = settingsEntrance
+                    translationY = (1f - settingsEntrance) * 10f * density
                 }
                 .liquidGlassSection(isLight)
                 .padding(20.dp),

@@ -50,17 +50,8 @@ fun Modifier.viewerGlass(
     // Off for surfaces that must NOT cast a drop shadow — e.g. the onboarding page-1 book, whose
     // shadow otherwise snapped in the moment the assembled book reached full opacity.
     withShadow: Boolean = true
-): Modifier = drawBackdrop(
-    backdrop = backdrop,
-    shape = shape,
-    effects = {
-        vibrancy()
-        blur(0.2f.dp.toPx())
-        lens(0f, 0f)
-    },
-    shadow = if (withShadow) ({ com.kyant.backdrop.shadow.Shadow.Default }) else null,
-    onDrawSurface = { drawRect(color) }
-)
+): Modifier = this.background(color, shape())
+    .border(1.dp, Color.White.copy(alpha = 0.08f), shape())
 
 /**
  * Soft, scroll-aware edge mask for a horizontally scrolling strip that rides on a [viewerGlass]

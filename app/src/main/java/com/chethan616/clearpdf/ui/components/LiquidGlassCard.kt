@@ -80,16 +80,8 @@ fun LiquidGlassCard(
         modifier
             .fillMaxWidth()
             .aspectRatio(1f)
-            .drawBackdrop(
-                backdrop = backdrop,
-                shape = { RoundedRectangle(28f.dp) },
-                effects = {
-                    vibrancy()
-                    blur(0.2f.dp.toPx())
-                    lens(0f, 0f, depthEffect = false)
-                },
-                onDrawSurface = { drawRect(container) }
-            )
+            .background(container, RoundedCornerShape(28.dp))
+            .border(1.dp, Color.White.copy(alpha = 0.10f), RoundedCornerShape(28.dp))
             .clickable(interactionSource = null, indication = null, role = Role.Button, onClick = onClick)
             .padding(18.dp),
         verticalArrangement = Arrangement.SpaceBetween

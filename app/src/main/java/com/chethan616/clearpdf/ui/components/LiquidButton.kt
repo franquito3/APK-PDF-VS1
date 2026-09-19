@@ -74,25 +74,13 @@ fun LiquidButton(
     surfaceColor: Color = Color.Unspecified,
     content: @Composable RowScope.() -> Unit
 ) {
+    val baseColor = if (tint.isSpecified) tint.copy(alpha = 0.22f) else Color.White.copy(alpha = 0.08f)
+    val fillColor = if (surfaceColor.isSpecified) surfaceColor.copy(alpha = 0.92f) else baseColor
+
     Row(
         modifier
-            .drawBackdrop(
-                backdrop = backdrop,
-                shape = { Capsule },
-                effects = {
-                    vibrancy()
-                    blur(0.2f.dp.toPx())
-                    lens(0f, 0f, depthEffect = false)
-                },
-                onDrawSurface = {
-                    if (tint.isSpecified) {
-                        drawRect(tint.copy(alpha = 0.18f))
-                    }
-                    if (surfaceColor.isSpecified) {
-                        drawRect(surfaceColor.copy(alpha = 0.8f))
-                    }
-                }
-            )
+            .background(fillColor, Capsule)
+            .border(1.dp, Color.White.copy(alpha = 0.12f), Capsule)
             .clickable(
                 interactionSource = null,
                 indication = if (isInteractive) null else LocalIndication.current,

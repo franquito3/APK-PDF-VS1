@@ -45,16 +45,8 @@ fun LiquidGlassTopBar(
 
     Row(
         modifier
-            .drawBackdrop(
-                backdrop = backdrop,
-                shape = { Capsule },
-                effects = {
-                    vibrancy()
-                    blur(0.2f.dp.toPx())
-                    lens(0f, 0f, depthEffect = false)
-                },
-                onDrawSurface = { drawRect(containerColor) }
-            )
+            .background(containerColor, Capsule)
+            .border(1.dp, Color.White.copy(alpha = 0.10f), Capsule)
             .fillMaxWidth()
             .height(56.dp)
             .padding(horizontal = 20.dp),

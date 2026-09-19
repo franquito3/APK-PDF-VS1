@@ -45,26 +45,14 @@ fun LiquidIconButton(
     onLongClick: (() -> Unit)? = null,
     content: @Composable () -> Unit
 ) {
+    val baseColor = if (tint.isSpecified) tint.copy(alpha = 0.22f) else Color.White.copy(alpha = 0.08f)
+    val fillColor = if (surfaceColor.isSpecified) surfaceColor.copy(alpha = 0.92f) else baseColor
+
     Box(
         modifier
             .size(40.dp)
-            .drawBackdrop(
-                backdrop = backdrop,
-                shape = { CircleShape },
-                effects = {
-                    vibrancy()
-                    blur(0.2f.dp.toPx())
-                    lens(0f, 0f, depthEffect = false)
-                },
-                onDrawSurface = {
-                    if (tint.isSpecified) {
-                        drawRect(tint.copy(alpha = 0.18f))
-                    }
-                    if (surfaceColor.isSpecified) {
-                        drawRect(surfaceColor.copy(alpha = 0.8f))
-                    }
-                }
-            )
+            .background(fillColor, CircleShape)
+            .border(1.dp, Color.White.copy(alpha = 0.12f), CircleShape)
             .then(
                 if (onLongClick != null)
                     Modifier.combinedClickable(

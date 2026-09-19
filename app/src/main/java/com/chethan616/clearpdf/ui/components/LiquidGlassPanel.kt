@@ -25,23 +25,16 @@ val ViewerChromeGlass: Color = Color(0xFF12151C).copy(alpha = 0.62f)
 fun Modifier.liquidGlassPanel(
     backdrop: Backdrop,
     uiSensor: UISensor,
-    // When set, overrides the theme-based tint. Used by the PDF viewer chrome, which
-    // renders white text over a backdrop that may be a bright page — it needs a dark,
-    // mostly-opaque base so text stays readable while the glass refraction is kept.
+    // Performance-first mode: the app now uses simple flat surfaces instead of expensive backdrop
+    // rendering. This keeps the interface readable and stable on mid-range devices.
     containerColorOverride: Color? = null
 ): Modifier {
     val isDarkMode = LocalIsDarkMode.current
     val isLightTheme = !isDarkMode
     val containerColor = containerColorOverride
-        ?: if (isLightTheme) Color(0xFFFAFAFA).copy(0.72f) else Color(0xFF1E1E1E).copy(0.72f)
-    return this.drawBackdrop(
-        backdrop = backdrop,
-        shape = { RoundedRectangle(28f.dp) },
-        effects = {
-            vibrancy()
-            blur(0.2f.dp.toPx())
-            lens(0f, 0f, depthEffect = false)
-        },
-        onDrawSurface = { drawRect(containerColor) }
-    )
+        ?: if (isLightTheme) Color(0xFFF7F7F8).copy(0.92f) else Color(0xFF171B22).copy(0.92f)
+    val borderColor = if (isLightTheme) Color.White.copy(0.75f) else Color.White.copy(0.10f)
+    return this
+        .background(containerColor, RoundedCornerShape(28.dp))
+        .border(1.dp, borderColor, RoundedCornerShape(28.dp))
 }

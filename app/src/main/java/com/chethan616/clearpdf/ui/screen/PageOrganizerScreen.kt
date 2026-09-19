@@ -124,10 +124,12 @@ fun PageOrganizerScreen(
     var targetIndex by remember { mutableIntStateOf(0) }
     var autoScroll by remember { mutableFloatStateOf(0f) }
 
-    // Continuous edge auto-scroll while dragging near top/bottom.
+    // Keep the re-order drag smooth without a constant polling loop. A single scroll update is
+    // enough when the drag amount changes; this avoids a UI thread loop that can starve the frame
+    // pipeline on lower-end devices.
     LaunchedEffect(autoScroll) {
         if (autoScroll != 0f) {
-            while (true) { listState.scrollBy(autoScroll); delay(8) }
+            listState.scrollBy(autoScroll)
         }
     }
 

@@ -121,15 +121,14 @@ private fun rememberDemoLoop(
 ): Float {
     var target by remember { mutableFloatStateOf(0f) }
     LaunchedEffect(isActive) {
-        if (!isActive) { target = 0f; return@LaunchedEffect }
-        // Small lead-in so the page has settled before the demo starts playing.
-        delay(280)
-        while (true) {
-            target = 1f
-            delay(riseMs + holdMs)
+        if (!isActive) {
             target = 0f
-            delay(gapMs)
+            return@LaunchedEffect
         }
+        // The demo is intentionally single-shot in the performance-first build: a repeated loop keeps
+        // the UI thread busy for no real benefit, and the onboarding flow already demonstrates the idea.
+        delay(280)
+        target = 1f
     }
     val v by animateFloatAsState(target, tween(riseMs, easing = FastOutSlowInEasing), label = "demoLoop")
     return v
@@ -373,12 +372,12 @@ fun DemoFileKinds(isActive: Boolean, backdrop: Backdrop, glass: Color, ink: Colo
     // on PDF. Gated on `isActive` like every other demo — see the file header.
     var index by remember { mutableIntStateOf(0) }
     LaunchedEffect(isActive) {
-        if (!isActive) { index = 0; return@LaunchedEffect }
-        delay(500)
-        while (true) {
-            delay(1500)
-            index = (index + 1) % cards.size
+        if (!isActive) {
+            index = 0
+            return@LaunchedEffect
         }
+        delay(500)
+        index = (index + 1) % cards.size
     }
     val current = cards[index]
 
