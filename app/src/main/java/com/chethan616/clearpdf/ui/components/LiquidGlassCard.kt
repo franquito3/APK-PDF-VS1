@@ -1,7 +1,6 @@
 package com.chethan616.clearpdf.ui.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -81,9 +80,36 @@ fun LiquidGlassCard(
         modifier
             .fillMaxWidth()
             .aspectRatio(1f)
-            .background(container, RoundedCornerShape(28.dp))
-            .border(1.dp, Color.White.copy(alpha = 0.10f), RoundedCornerShape(28.dp))
+            .drawBackdrop(
+                backdrop = backdrop,
+                shape = { RoundedRectangle(28f.dp) },
+                effects = {
+                    vibrancy()
+                    blur(4f.dp.toPx())
+                    lens(12f.dp.toPx(), 20f.dp.toPx(), depthEffect = false)
+                },
+                highlight = {
+                    Highlight(style = HighlightStyle.Default(angle = uiSensor.gravityAngle, falloff = 2f))
+                },
+                shadow = { Shadow(radius = 8f.dp, color = Color.Black.copy(alpha = 0.12f)) },
+                innerShadow = { InnerShadow(radius = 3.5f.dp, alpha = 0.35f) },
+                layerBlock = {
+                    val progress = interactiveHighlight.pressProgress
+                    val scale = lerp(1f, 1f + 4f.dp.toPx() / size.height, progress)
+                    val maxOffset = size.minDimension
+                    val offset = interactiveHighlight.offset
+                    translationX = maxOffset * tanh(0.04f * offset.x / maxOffset)
+                    translationY = maxOffset * tanh(0.04f * offset.y / maxOffset)
+                    val maxDragScale = 3f.dp.toPx() / size.height
+                    val offsetAngle = atan2(offset.y, offset.x)
+                    scaleX = scale + maxDragScale * abs(cos(offsetAngle) * offset.x / size.maxDimension)
+                    scaleY = scale + maxDragScale * abs(sin(offsetAngle) * offset.y / size.maxDimension)
+                },
+                onDrawSurface = { drawRect(container) }
+            )
             .clickable(interactionSource = null, indication = null, role = Role.Button, onClick = onClick)
+            .then(interactiveHighlight.modifier)
+            .then(interactiveHighlight.gestureModifier)
             .padding(18.dp),
         verticalArrangement = Arrangement.SpaceBetween
     ) {

@@ -1,7 +1,5 @@
 package com.chethan616.clearpdf.ui.components
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.layout.Arrangement
@@ -76,18 +74,73 @@ fun LiquidButton(
     surfaceColor: Color = Color.Unspecified,
     content: @Composable RowScope.() -> Unit
 ) {
-    val baseColor = if (tint.isSpecified) tint.copy(alpha = 0.22f) else Color.White.copy(alpha = 0.08f)
-    val fillColor = if (surfaceColor.isSpecified) surfaceColor.copy(alpha = 0.92f) else baseColor
+    val animationScope = rememberCoroutineScope()
+    val interactiveHighlight = remember(animationScope) {
+        InteractiveHighlight(animationScope = animationScope)
+    }
 
     Row(
         modifier
-            .background(fillColor, Capsule)
-            .border(1.dp, Color.White.copy(alpha = 0.12f), Capsule)
+            .drawBackdrop(
+                backdrop = backdrop,
+                shape = { Capsule },
+                effects = {
+                    vibrancy()
+                    blur(1.5f.dp.toPx())
+                    lens(8f.dp.toPx(), 18f.dp.toPx(), depthEffect = false)
+                },
+                layerBlock = if (isInteractive) {
+                    {
+                        val width = size.width
+                        val height = size.height
+
+                        val progress = interactiveHighlight.pressProgress
+                        val scale = lerp(1f, 1f + 4f.dp.toPx() / size.height, progress)
+
+                        val maxOffset = size.minDimension
+                        val initialDerivative = 0.05f
+                        val offset = interactiveHighlight.offset
+                        translationX = maxOffset * tanh(initialDerivative * offset.x / maxOffset)
+                        translationY = maxOffset * tanh(initialDerivative * offset.y / maxOffset)
+
+                        val maxDragScale = 4f.dp.toPx() / size.height
+                        val offsetAngle = atan2(offset.y, offset.x)
+                        scaleX =
+                            scale +
+                                    maxDragScale * abs(cos(offsetAngle) * offset.x / size.maxDimension) *
+                                    (width / height).fastCoerceAtMost(1f)
+                        scaleY =
+                            scale +
+                                    maxDragScale * abs(sin(offsetAngle) * offset.y / size.maxDimension) *
+                                    (height / width).fastCoerceAtMost(1f)
+                    }
+                } else {
+                    null
+                },
+                onDrawSurface = {
+                    if (tint.isSpecified) {
+                        drawRect(tint, blendMode = BlendMode.Hue)
+                        drawRect(tint.copy(alpha = 0.75f))
+                    }
+                    if (surfaceColor.isSpecified) {
+                        drawRect(surfaceColor)
+                    }
+                }
+            )
             .clickable(
                 interactionSource = null,
                 indication = if (isInteractive) null else LocalIndication.current,
                 role = Role.Button,
                 onClick = onClick
+            )
+            .then(
+                if (isInteractive) {
+                    Modifier
+                        .then(interactiveHighlight.modifier)
+                        .then(interactiveHighlight.gestureModifier)
+                } else {
+                    Modifier
+                }
             )
             .height(48f.dp)
             .padding(horizontal = 16f.dp),

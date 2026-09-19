@@ -1,7 +1,5 @@
 package com.chethan616.clearpdf.ui.components
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -47,8 +45,21 @@ fun LiquidGlassTopBar(
 
     Row(
         modifier
-            .background(containerColor, Capsule)
-            .border(1.dp, Color.White.copy(alpha = 0.10f), Capsule)
+            .drawBackdrop(
+                backdrop = backdrop,
+                shape = { Capsule },
+                effects = {
+                    vibrancy()
+                    blur(4f.dp.toPx())
+                    lens(10f.dp.toPx(), 20f.dp.toPx(), depthEffect = false)
+                },
+                highlight = {
+                    Highlight(style = HighlightStyle.Default(angle = uiSensor.gravityAngle, falloff = 2f))
+                },
+                shadow = { Shadow(radius = 6f.dp, color = Color.Black.copy(alpha = 0.08f)) },
+                innerShadow = { InnerShadow(radius = 2f.dp, alpha = 0.25f) },
+                onDrawSurface = { drawRect(containerColor) }
+            )
             .fillMaxWidth()
             .height(56.dp)
             .padding(horizontal = 20.dp),

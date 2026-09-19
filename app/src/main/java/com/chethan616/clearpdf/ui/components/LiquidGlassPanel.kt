@@ -1,8 +1,5 @@
 package com.chethan616.clearpdf.ui.components
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,16 +25,28 @@ val ViewerChromeGlass: Color = Color(0xFF12151C).copy(alpha = 0.62f)
 fun Modifier.liquidGlassPanel(
     backdrop: Backdrop,
     uiSensor: UISensor,
-    // Performance-first mode: the app now uses simple flat surfaces instead of expensive backdrop
-    // rendering. This keeps the interface readable and stable on mid-range devices.
+    // When set, overrides the theme-based tint. Used by the PDF viewer chrome, which
+    // renders white text over a backdrop that may be a bright page — it needs a dark,
+    // mostly-opaque base so text stays readable while the glass refraction is kept.
     containerColorOverride: Color? = null
 ): Modifier {
     val isDarkMode = LocalIsDarkMode.current
     val isLightTheme = !isDarkMode
     val containerColor = containerColorOverride
-        ?: if (isLightTheme) Color(0xFFF7F7F8).copy(0.92f) else Color(0xFF171B22).copy(0.92f)
-    val borderColor = if (isLightTheme) Color.White.copy(0.75f) else Color.White.copy(0.10f)
-    return this
-        .background(containerColor, RoundedCornerShape(28.dp))
-        .border(1.dp, borderColor, RoundedCornerShape(28.dp))
+        ?: if (isLightTheme) Color(0xFFFAFAFA).copy(0.4f) else Color(0xFF1E1E1E).copy(0.4f)
+    return this.drawBackdrop(
+        backdrop = backdrop,
+        shape = { RoundedRectangle(28f.dp) },
+        effects = {
+            // Lower-cost glass on mid-range devices: keep the translucent look without the heavier
+            // blur + refraction pass that was re-running on every panel and making the A55 feel slow.
+            vibrancy()
+            blur(3.5f.dp.toPx())
+            lens(8f.dp.toPx(), 18f.dp.toPx(), depthEffect = false)
+        },
+        highlight = { Highlight(style = HighlightStyle.Default(angle = uiSensor.gravityAngle, falloff = 1.5f)) },
+        shadow = { Shadow(radius = 5f.dp, color = Color.Black.copy(alpha = 0.08f)) },
+        innerShadow = { InnerShadow(radius = 2f.dp, alpha = 0.18f) },
+        onDrawSurface = { drawRect(containerColor) }
+    )
 }

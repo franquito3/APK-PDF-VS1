@@ -4,7 +4,6 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -24,7 +23,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
@@ -82,13 +80,25 @@ fun GlassCapsuleMenu(
     } else {
         surfaceColor
     }
-    val density = LocalDensity.current.density
 
     Row(
         modifier
             .graphicsLayer { alpha = progress.coerceIn(0f, 1f) }
-            .background(container, Capsule)
-            .border(1.dp, Color.White.copy(alpha = 0.12f), Capsule)
+            .drawBackdrop(
+                backdrop = backdrop,
+                shape = { Capsule },
+                effects = {
+                    vibrancy()
+                    blur(4f.dp.toPx())
+                    lens(8f.dp.toPx(), 18f.dp.toPx(), depthEffect = false)
+                },
+                highlight = {
+                    Highlight(style = HighlightStyle.Default(angle = uiSensor.gravityAngle, falloff = 2f))
+                },
+                shadow = { Shadow(radius = 10f.dp, color = Color.Black.copy(alpha = 0.14f)) },
+                innerShadow = { InnerShadow(radius = 2f.dp, alpha = 0.25f) },
+                onDrawSurface = { drawRect(container) }
+            )
             .padding(horizontal = 8.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
