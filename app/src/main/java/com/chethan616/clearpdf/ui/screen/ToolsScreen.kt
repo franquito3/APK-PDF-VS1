@@ -1,24 +1,13 @@
 package com.chethan616.clearpdf.ui.screen
 
-import androidx.compose.animation.core.CubicBezierEasing
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.Transition
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.material.icons.Icons
@@ -103,7 +92,6 @@ fun ToolsScreen(
 ) {
     val uiSensor = rememberUISensor()
     val isDarkMode = LocalIsDarkMode.current
-    val density = LocalDensity.current.density
 
     var query by remember { mutableStateOf("") }
     var searchActive by remember { mutableStateOf(false) }
@@ -155,12 +143,6 @@ fun ToolsScreen(
         )
     )
 
-    var isVisible by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) { isVisible = true }
-    // One transition, one frame clock. Sections stagger via delayMillis instead of each running its
-    // own animateFloatAsState.
-    val entrance = updateTransition(isVisible, label = "toolsEntrance")
-
     val trimmed = query.trim()
     val searching = trimmed.isNotBlank()
     val results = if (!searching) emptyList() else {
@@ -177,7 +159,7 @@ fun ToolsScreen(
         header = { headerBackdrop ->
             // Holds a glass title pill and a glass circle, so it fades in place. Pinned above
             // the list, sampling the content layer so the tiles refract through it as they scroll.
-            Box(entrance.glassFadeModifier(0)) {
+            Box {
                 GlassSearchHeader(
                     title = stringResource(R.string.tools_title),
                     backdrop = headerBackdrop,
@@ -217,21 +199,14 @@ fun ToolsScreen(
             }
         } else {
             item(key = "primary") {
-                Box(entrance.tileEntranceModifier(0, density)) {
-                    ToolTileWide(openPdf.title, openPdf.subtitle, openPdf.accent, openPdf.icon, openPdf.onClick)
-                }
+                ToolTileWide(openPdf.title, openPdf.subtitle, openPdf.accent, openPdf.icon, openPdf.onClick)
             }
 
-            sections.forEachIndexed { index, section ->
+            sections.forEach { section ->
                 item(key = section.label) {
-                    // Five stagger slots per section — the label, then its four tiles — so the whole
-                    // screen cascades top-to-bottom instead of four sections restarting in place.
-                    val base = 1 + index * 5
                     Column {
-                        Box(entrance.tileEntranceModifier(base, density)) {
-                            GlassSectionLabel(section.label)
-                        }
-                        ToolSectionPanel(section, backdrop, uiSensor, entrance, base, density)
+                        GlassSectionLabel(section.label)
+                        ToolSectionPanel(section)
                     }
                 }
             }
@@ -246,97 +221,28 @@ fun ToolsScreen(
  */
 @Composable
 private fun ToolSectionPanel(
-    section: ToolSection,
-    backdrop: LayerBackdrop,
-    uiSensor: UISensor,
-    entrance: Transition<Boolean>,
-    base: Int,
-    density: Float
+    section: ToolSection
 ) {
     Column(
         Modifier
             .fillMaxWidth()
-            .then(entrance.glassFadeModifier(base))
-            .liquidGlassPanel(backdrop, uiSensor)
             .padding(12.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        section.tools.chunked(2).forEachIndexed { rowIdx, pair ->
+        section.tools.chunked(2).forEach { pair ->
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                pair.forEachIndexed { colIdx, tool ->
-                    // Flat index across both rows: the label took slot `base`, so the four tiles
-                    // occupy base+1..base+4 and the cascade keeps running top-to-bottom.
+                pair.forEach { tool ->
                     ToolTile(
                         title = tool.title,
                         subtitle = tool.subtitle,
                         accent = tool.accent,
                         icon = tool.icon,
                         onClick = tool.onClick,
-                        modifier = Modifier
-                            .weight(1f)
-                            .then(entrance.tileEntranceModifier(base + 1 + rowIdx * 2 + colIdx, density))
+                        modifier = Modifier.weight(1f)
                     )
                 }
-                // Keep a lone trailing tile at half width instead of letting it stretch.
                 if (pair.size == 1) Spacer(Modifier.weight(1f))
             }
         }
-    }
-}
-
-/** One stagger step. Everything on the screen is placed on this grid so the cascade reads evenly. */
-private const val StaggerStepMs = 35
-
-/**
- * Overshoots past 1.0 and settles back — the "bounce". It is only ever applied to scale and
- * translation, which are draw-time properties, so the overshoot costs nothing beyond the frames it
- * already takes. Alpha deliberately never gets this curve: an overshooting alpha clips at 1.0 and
- * reads as a flicker rather than a bounce.
- */
-private val EaseOutBack = CubicBezierEasing(0.34f, 1.56f, 0.64f, 1f)
-
-/**
- * Entrance for surfaces that contain liquid glass — the header pill and the section panels.
- *
- * **Alpha only, never translation.** A `drawBackdrop` surface samples the backdrop for the region it
- * currently covers, so moving one re-runs blur+lens every single frame. Four section panels plus the
- * header's glass pill and circle all sliding at once is what made this screen stutter. Holding them
- * still keeps their sample region fixed for the whole entrance.
- */
-@Composable
-private fun Transition<Boolean>.glassFadeModifier(index: Int): Modifier {
-    val alpha by animateFloat(
-        transitionSpec = { tween(durationMillis = 320, delayMillis = StaggerStepMs * index, easing = FastOutSlowInEasing) },
-        label = "glassFade$index"
-    ) { if (it) 1f else 0f }
-    return Modifier.graphicsLayer { this.alpha = alpha }
-}
-
-/**
- * Entrance for flat content — the tool tiles and the section labels. These have no `drawBackdrop`,
- * so they are free to spring around: this is where the bounce lives.
- *
- * All three values are read inside the `graphicsLayer` lambda, which defers them to the draw phase,
- * so the whole cascade invalidates draw without ever recomposing the screen.
- */
-@Composable
-private fun Transition<Boolean>.tileEntranceModifier(index: Int, density: Float): Modifier {
-    val scale by animateFloat(
-        transitionSpec = { tween(durationMillis = 420, delayMillis = StaggerStepMs * index, easing = EaseOutBack) },
-        label = "tileScale$index"
-    ) { if (it) 1f else 0.86f }
-    val offsetY by animateFloat(
-        transitionSpec = { tween(durationMillis = 420, delayMillis = StaggerStepMs * index, easing = EaseOutBack) },
-        label = "tileOffset$index"
-    ) { if (it) 0f else 18f }
-    val alpha by animateFloat(
-        transitionSpec = { tween(durationMillis = 260, delayMillis = StaggerStepMs * index, easing = FastOutSlowInEasing) },
-        label = "tileAlpha$index"
-    ) { if (it) 1f else 0f }
-    return Modifier.graphicsLayer {
-        this.alpha = alpha
-        scaleX = scale
-        scaleY = scale
-        translationY = offsetY * density
     }
 }

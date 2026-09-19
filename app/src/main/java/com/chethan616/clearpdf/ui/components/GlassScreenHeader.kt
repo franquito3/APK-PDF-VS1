@@ -73,9 +73,10 @@ fun GlassScreenScaffold(
     content: @Composable BoxScope.(contentPadding: PaddingValues) -> Unit
 ) {
     val contentBackdrop = rememberLayerBackdrop()
-    // Wallpaper first, live content composited over it — the content layer is transparent wherever
-    // no card is drawn, so the header still refracts the wallpaper in the gaps.
-    val headerBackdrop = rememberCombinedBackdrop(backdrop, contentBackdrop)
+    // Keep the header cheap and stable: it should sit above the content without re-sampling the
+    // scrollable layer every frame. The full combined backdrop path was the heaviest part of the
+    // visual stack and was causing noticeable redraw pressure while content was moving.
+    val headerBackdrop = backdrop
 
     val statusTop = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val navBottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()

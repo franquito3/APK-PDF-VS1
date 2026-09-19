@@ -1,12 +1,8 @@
 package com.chethan616.clearpdf.ui.components
 
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -43,26 +39,8 @@ import com.chethan616.clearpdf.ui.theme.LocalIsDarkMode
 val ToolTileHeight = 120.dp
 
 /**
- * Press feedback shared by every tile: the surface eases down under the finger and springs back on
- * release, with no grey ripple. Same feel as the recents rows on Home.
- */
-@Composable
-private fun rememberPressScale(interaction: MutableInteractionSource): Float {
-    val pressed by interaction.collectIsPressedAsState()
-    val scale by animateFloatAsState(
-        if (pressed) 0.96f else 1f,
-        // Slightly under-damped and a touch stiffer than the rest of the app: release kicks back
-        // with a visible bounce. Scoped to the tool tiles on purpose — everything else stays damped.
-        spring(dampingRatio = 0.42f, stiffness = Spring.StiffnessMedium),
-        label = "toolTilePress"
-    )
-    return scale
-}
-
-/**
- * A flat tool tile. Deliberately **not** a glass surface: it renders inside a single
- * `liquidGlassPanel`, which supplies the refraction for the whole section. Giving each of the 17
- * tools its own blur+lens pass is what made the Tools screen stutter.
+ * Flat tool tiles with no animation layer: the scrollable tools list is used constantly, so every
+ * press-scale animation on each item adds unnecessary draw work and memory churn.
  */
 @Composable
 fun ToolTile(
@@ -75,12 +53,10 @@ fun ToolTile(
 ) {
     val isLight = !LocalIsDarkMode.current
     val interaction = remember { MutableInteractionSource() }
-    val scale = rememberPressScale(interaction)
 
     Column(
         modifier
             .height(ToolTileHeight)
-            .graphicsLayer { scaleX = scale; scaleY = scale }
             .clip(RoundedCornerShape(20.dp))
             .background(accent.copy(alpha = if (isLight) 0.10f else 0.15f))
             .clickable(
@@ -129,12 +105,10 @@ fun ToolTileWide(
 ) {
     val isLight = !LocalIsDarkMode.current
     val interaction = remember { MutableInteractionSource() }
-    val scale = rememberPressScale(interaction)
 
     Row(
         modifier
             .fillMaxWidth()
-            .graphicsLayer { scaleX = scale; scaleY = scale }
             .clip(RoundedCornerShape(22.dp))
             .background(accent.copy(alpha = if (isLight) 0.12f else 0.18f))
             .clickable(
